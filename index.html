@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance Tracker Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div id="loadingText">جارٍ تحميل البيانات...</div>
+    </div>
+  </div>
+
+  <div class="top-brand">
+    <div class="brand-main">
+      <img src="logo.png" alt="logo" class="top-logo" />
+      <div>
+        <h2>Performance Tracker</h2>
+        <p>C Store Delivery</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="darkModeBtn" class="secondary" type="button">🌙 Dark Mode</button>
+      <div class="user-chip">
+        <span>المستخدم الحالي:</span>
+        <strong id="currentUserLabel">—</strong>
+      </div>
+      <button class="secondary" type="button" onclick="window.location.href='settings.html'">⚙ Settings</button>
+      <button class="secondary" type="button" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div>
+          <h1>Performance Tracker</h1>
+          <p>Google Sheets Dashboard</p>
+        </div>
+        <div class="brand-badge">PT</div>
+      </div>
+
+      <nav class="menu">
+        <button class="menu-btn active" data-section="overview">الرئيسية</button>
+        <button class="menu-btn" data-section="source">مصدر البيانات</button>
+        <button class="menu-btn" data-section="employees">تقرير الموظفين</button>
+        <button class="menu-btn" data-section="riders">تقرير الطيارين</button>
+        <button class="menu-btn" data-section="branches">تقرير الفروع</button>
+      </nav>
+
+      <div class="side-card">
+        <h3>أفضل أداء</h3>
+        <p>أفضل محضر: <strong id="bestEmployeeSide">—</strong></p>
+        <p>أفضل طيار: <strong id="bestRiderSide">—</strong></p>
+        <p>أسرع فرع: <strong id="bestBranchSide">—</strong></p>
+      </div>
+
+      <div class="side-card">
+        <h3>الحساب الحالي</h3>
+        <p>المستخدم: <strong id="currentUserSide">—</strong></p>
+        <p>الصلاحية: <strong id="currentRoleSide">—</strong></p>
+        <p id="roleHint" class="muted-note">—</p>
+      </div>
+
+      <div class="side-card">
+        <h3>البيانات الحالية</h3>
+        <p>الفروع المتصلة: <strong id="connectedBranches">0</strong></p>
+        <p>إجمالي الصفوف: <strong id="totalRowsSide">0</strong></p>
+        <button class="secondary full-btn" type="button" onclick="syncData()">مزامنة البيانات</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="hero">
+        <div>
+          <span class="tag">Google Sheets Live</span>
+          <h2>لوحة تشغيل الفروع والتوصيل</h2>
+          <p>يتم تحميل بيانات الفروع مباشرة من روابط Google Sheets المنشورة بصيغة CSV، ثم تحليلها وعرضها في Dashboard موحدة.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="primary" type="button" onclick="syncData()">مزامنة الآن</button>
+          <button class="secondary" type="button" onclick="exportExcelReport()">Export Excel</button>
+          <button class="secondary" type="button" onclick="exportPDFReport()">Export PDF</button>
+        </div>
+      </header>
+
+      <section id="overview" class="section active">
+        <div class="section-head">
+          <div><h3>الصفحة الرئيسية</h3><p>ملخص الأداء الحالي</p></div>
+          <div class="last-sync">آخر تحديث: <span id="lastSync">لم يتم بعد</span></div>
+        </div>
+
+        <div class="filters-bar">
+  <div class="date-range">
+    <label class="filter-field compact-field">
+      <span>من</span>
+      <input type="date" id="dateFrom" />
+    </label>
+
+    <label class="filter-field compact-field">
+      <span>إلى</span>
+      <input type="date" id="dateTo" />
+    </label>
+
+    <div class="filters-actions quick-actions">
+      <button class="primary" type="button" onclick="applyFilters()">تطبيق الفلترة</button>
+      <button class="secondary" type="button" onclick="setLastDaysFilter(7)">آخر 7 أيام</button>
+      <button class="secondary" type="button" onclick="setLastDaysFilter(30)">آخر 30 يوم</button>
+      <button class="secondary" type="button" onclick="clearFilters()">مسح</button>
+    </div>
+  </div>
+
+  <label class="filter-field">
+    <span>الفرع</span>
+    <select id="filterBranch"></select>
+  </label>
+
+  <label class="filter-field">
+    <span>المحضر</span>
+    <select id="filterEmployee"></select>
+  </label>
+
+  <label class="filter-field">
+    <span>الطيار</span>
+    <select id="filterRider"></select>
+  </label>
+</div>
+
+        <div id="errorBox" class="error-box hidden"></div>
+        <div id="insightsBox" class="insights-grid"></div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-title">إجمالي الأوردرات</div><div class="stat-value" id="totalOrders">0</div><div class="stat-note">بعد الفلترة الحالية</div></div>
+          <div class="stat-card"><div class="stat-title">متوسط التحضير</div><div class="stat-value" id="avgPrep">0 د</div><div class="stat-note">لكل أوردر</div></div>
+          <div class="stat-card"><div class="stat-title">متوسط التوصيل</div><div class="stat-value" id="avgDelivery">0 د</div><div class="stat-note">من الخروج حتى التسليم</div></div>
+          <div class="stat-card"><div class="stat-title">متوسط المعالجة</div><div class="stat-value" id="avgProcess">0 د</div><div class="stat-note">من تأكيد العميل حتى نزول الفرع</div></div>
+        </div>
+
+        <div class="donuts-grid">
+          <div class="donut-card"><div class="donut-head">الموظفين</div><div class="donut-wrap"><div class="donut-chart" id="employeeDonut"></div><div class="donut-legend" id="employeeLegend"></div></div></div>
+          <div class="donut-card"><div class="donut-head">الطيارين</div><div class="donut-wrap"><div class="donut-chart" id="riderDonut"></div><div class="donut-legend" id="riderLegend"></div></div></div>
+          <div class="donut-card"><div class="donut-head">الفروع</div><div class="donut-wrap"><div class="donut-chart" id="branchDonut"></div><div class="donut-legend" id="branchLegend"></div></div></div>
+        </div>
+
+        <div class="highlights">
+          <div class="highlight-card"><div class="highlight-title">أفضل محضر</div><div class="highlight-name" id="bestEmployee">—</div><div class="highlight-sub" id="bestEmployeeMetric">يعتمد على عدد الأوردرات ÷ متوسط التحضير</div></div>
+          <div class="highlight-card"><div class="highlight-title">أفضل طيار</div><div class="highlight-name" id="bestRider">—</div><div class="highlight-sub" id="bestRiderMetric">يعتمد على عدد الأوردرات ÷ متوسط التوصيل</div></div>
+          <div class="highlight-card"><div class="highlight-title">أسرع فرع في التحضير</div><div class="highlight-name" id="bestBranch">—</div><div class="highlight-sub" id="bestBranchMetric">أقل متوسط تحضير</div></div>
+        </div>
+
+        <div class="highlights trend-grid">
+          <div class="highlight-card">
+            <div class="highlight-title">مقارنة اليوم vs أمس</div>
+            <div id="compareDaysBox" class="highlight-sub large-sub">—</div>
+          </div>
+          <div class="highlight-card trend-card full-span">
+            <div class="highlight-title">Ranking Trends | أفضل 5 محضرين</div>
+            <div id="trendList" class="trend-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="source" class="section">
+        <div class="section-head"><div><h3>مصدر البيانات</h3><p>المزامنة تتم من رابط مستقل لكل فرع</p></div></div>
+        <div id="branchStatusGrid" class="source-grid"></div>
+      </section>
+
+      <section id="employees" class="section">
+        <div class="section-head"><div><h3>تقرير الموظفين</h3><p>أفضلية المحضرين حسب المعادلة الحالية</p></div></div>
+        <div class="table-wrap"><table id="employeesTable"></table></div>
+      </section>
+
+      <section id="riders" class="section">
+        <div class="section-head"><div><h3>تقرير الطيارين</h3><p>أفضلية الطيارين حسب المعادلة الحالية</p></div></div>
+        <div class="table-wrap"><table id="ridersTable"></table></div>
+      </section>
+
+      <section id="branches" class="section">
+        <div class="section-head"><div><h3>تقرير الفروع</h3><p>مقارنة الفروع في التحضير والمعالجة والتوصيل</p></div></div>
+        <div class="table-wrap"><table id="branchesTable"></table></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

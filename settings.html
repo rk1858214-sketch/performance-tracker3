@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings | Performance Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="settings-page">
+  <div class="settings-shell">
+    <div class="settings-header-card">
+      <div>
+        <span class="tag">Settings</span>
+        <h1>إعدادات الحساب</h1>
+        <p>يمكنك تعديل كلمة المرور الخاصة بك، وإذا كنت admin يمكنك أيضًا تعديل كلمة مرور أي مستخدم.</p>
+      </div>
+      <div class="settings-actions">
+        <button class="secondary" type="button" onclick="window.location.href='index.html'">العودة للوحة الرئيسية</button>
+        <button class="secondary" type="button" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <section class="settings-card">
+        <h3>بيانات المستخدم الحالي</h3>
+        <div class="settings-user-box">
+          <div><span>اسم المستخدم</span><strong id="currentUsername">—</strong></div>
+          <div><span>الصلاحية</span><strong id="currentRole">—</strong></div>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <h3>مصدر البيانات</h3>
+        <p class="muted-note">النسخة الحالية مربوطة بخمسة روابط Google Sheets بصيغة CSV داخل ملف <strong>config.js</strong>.</p>
+        <div class="settings-user-box" id="branchList"></div>
+      </section>
+
+      <section class="settings-card">
+        <h3>تغيير كلمة المرور الخاصة بي</h3>
+        <form id="myPasswordForm" class="auth-form compact-form">
+          <label class="field"><span>كلمة المرور الحالية</span><input id="currentPassword" type="password" required /></label>
+          <label class="field"><span>كلمة المرور الجديدة</span><input id="newPassword" type="password" required /></label>
+          <label class="field"><span>تأكيد كلمة المرور الجديدة</span><input id="confirmPassword" type="password" required /></label>
+          <button class="primary" type="submit">حفظ التعديل</button>
+          <div class="auth-success hidden" id="myPasswordSuccess"></div>
+          <div class="auth-error hidden" id="myPasswordError"></div>
+        </form>
+      </section>
+
+      <section class="settings-card hidden" id="adminPasswordCard">
+        <h3>تعديل كلمة مرور مستخدم آخر</h3>
+        <form id="adminPasswordForm" class="auth-form compact-form">
+          <label class="field">
+            <span>اختر المستخدم</span>
+            <select id="targetUser">
+              <option value="admin">admin</option>
+              <option value="viewer">viewer</option>
+            </select>
+          </label>
+          <label class="field"><span>كلمة المرور الجديدة</span><input id="adminNewPassword" type="password" required /></label>
+          <label class="field"><span>تأكيد كلمة المرور</span><input id="adminConfirmPassword" type="password" required /></label>
+          <button class="primary" type="submit">تحديث كلمة المرور</button>
+          <div class="auth-success hidden" id="adminPasswordSuccess"></div>
+          <div class="auth-error hidden" id="adminPasswordError"></div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    if (!requireAuth()) {}
+    const currentUser = getCurrentUser();
+    document.getElementById('currentUsername').textContent = currentUser?.username || '—';
+    document.getElementById('currentRole').textContent = currentUser?.role || '—';
+    if (isAdmin()) document.getElementById('adminPasswordCard').classList.remove('hidden');
+
+    document.getElementById('branchList').innerHTML = (window.APP_CONFIG?.branches || []).map(branch => (
+      `<div><span>${branch.name}</span><strong>مرتبط</strong></div>`
+    )).join('');
+
+    function resetMessages(){
+      ['myPasswordSuccess','myPasswordError','adminPasswordSuccess','adminPasswordError'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el){ el.textContent = ''; el.classList.add('hidden'); }
+      });
+    }
+
+    document.getElementById('myPasswordForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      resetMessages();
+      const result = changeMyPassword(
+        document.getElementById('currentPassword').value,
+        document.getElementById('newPassword').value,
+        document.getElementById('confirmPassword').value
+      );
+      const box = document.getElementById(result.ok ? 'myPasswordSuccess' : 'myPasswordError');
+      box.textContent = result.message; box.classList.remove('hidden');
+      if(result.ok) this.reset();
+    });
+
+    document.getElementById('adminPasswordForm')?.addEventListener('submit', function(e){
+      e.preventDefault();
+      resetMessages();
+      const result = adminUpdatePassword(
+        document.getElementById('targetUser').value,
+        document.getElementById('adminNewPassword').value,
+        document.getElementById('adminConfirmPassword').value
+      );
+      const box = document.getElementById(result.ok ? 'adminPasswordSuccess' : 'adminPasswordError');
+      box.textContent = result.message; box.classList.remove('hidden');
+      if(result.ok) this.reset();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل الدخول | Performance Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="login-page">
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <img src="logo.png" alt="logo" class="auth-logo" />
+        <div>
+          <h1>Performance Tracker</h1>
+          <p>C Store Delivery</p>
+        </div>
+      </div>
+
+      <div class="auth-copy">
+        <span class="tag">تسجيل الدخول</span>
+        <h2>ابدأ الدخول إلى النظام</h2>
+        <p>النظام يقرأ بيانات الفروع مباشرة من Google Sheets المنشورة بصيغة CSV.</p>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <label class="field">
+          <span>اسم المستخدم</span>
+          <select id="username" required>
+            <option value="admin">admin</option>
+            <option value="viewer">viewer</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>كلمة المرور</span>
+          <input id="password" type="password" placeholder="اكتب كلمة المرور" required />
+        </label>
+
+        <button class="primary full-btn" type="submit">دخول</button>
+        <div class="auth-error hidden" id="loginError"></div>
+      </form>
+
+      <div class="auth-hint">
+        <strong>بيانات الدخول الافتراضية:</strong>
+        <div>admin / admin123</div>
+        <div>viewer / viewer123</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    if (getCurrentUser()) window.location.href = 'index.html';
+    document.getElementById('loginForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const result = loginUser(document.getElementById('username').value, document.getElementById('password').value);
+      const box = document.getElementById('loginError');
+      if(!result.ok){ box.textContent = result.message; box.classList.remove('hidden'); return; }
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
