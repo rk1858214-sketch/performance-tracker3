@@ -1,24 +1,24 @@
 window.APP_CONFIG = {
   branches: [
     {
-      name: "فرع التجمع الاول",
-      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSxvtS2ZtJF06x8tigJFwuONlY6K20B2oRzzl7p4x8uf7X8g38iQliRFaCkLWyxJA/pub?output=csv"
+      name: "فرع التجمع الخامس",
+      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vT5cC8j20rZcY6XzbuHipT0gQ-h0BekdlaPadybeF7Xphu26i5Rq9jIe1Lby-6U9w/pub?output=csv"
     },
     {
-      name: "فرع التجمع الخامس",
-      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsetZz_GwMkupbCXjuFDDgMv9FJD_1Jyrd1WMjV1cjgXhOUJovAcoOS6SBhX2ryg/pub?output=csv"
+      name: "فرع التجمع الاول",
+      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9j6BA9pDEWZX-7ZToN6J3Rp9F7IpVsp7mDznqaEXFWNfpMjzBmwqtIA-fIQVK6Q/pub?output=csv"
     },
     {
       name: "فرع مصر الجديدة",
-      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLmm5JJ4Xx0WNvZOdHfXgFAuF4C_buhYLNqPckLsXXdj745MIQMwBQhWA_P4fqdA/pub?output=csv"
+      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjVLSsFTVBnnsJOc35IuYdaZctmjWxFtkLYGLcSn_FilfLA5FRCBysC-7h3fRkYg/pub?output=csv"
     },
     {
       name: "فرع عباس",
-      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxFHEWRJobD9YQTkK_cDSaSzkAvK5i-_IILGYdxloEFE4S_snH7eoICXG11WAszg/pub?output=csv"
+      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsWrVYtyjU-rC8MYbn_8oSLHW7LzFxEMZug_V-NiIRlbNxuaGNinVpX_bSIyQ-9w/pub?output=csv"
     },
     {
       name: "فرع المعادي",
-      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSoh8zFLeDBFjM1zcwSkKDfEppx8ELjl-G4kNMkx2Q4GFEIdkFoQRSPngiOUQy6gw/pub?output=csv"
+      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRCMc0cdnzVPg1f2cS4BRwHUyYQiUmVoJ1JpkUk6pmtUcPF9Zi_LIYQyjoJroyzgg/pub?output=csv"
     }
   ]
 };
